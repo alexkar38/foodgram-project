@@ -10,7 +10,6 @@ from .serialaizers import FollowListSerializer, FollowSerializer
 
 
 class FollowView(APIView):
-
     permission_classes = [IsAuthenticated]
 
     def post(self, request, id):
@@ -29,7 +28,6 @@ class FollowView(APIView):
 
 
 class FollowListView(ListAPIView):
-
     pagination_class = LimitOffsetPagination
     permission_classes = [IsAuthenticated]
 

@@ -53,6 +53,7 @@ class Recipe(models.Model):
 
     tags = models.ManyToManyField(
         Tag,
+        related_name='tags',
         verbose_name='теги рецепта',
     )
     
@@ -64,3 +65,59 @@ class Recipe(models.Model):
     class Meta:
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'       
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(User, related_name='favorites',
+                             on_delete=models.CASCADE)
+    recipe = models.ForeignKey(Recipe, related_name='favorites',
+                               on_delete=models.CASCADE)
+    added = models.DateTimeField(
+        auto_now_add=True, verbose_name='Дата добавления в избранное'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        models.UniqueConstraint(fields=['recipe', 'user'], name='favorite_unique')
+
+    def __str__(self):
+        return f"{self.user} has favorites: {self.recipe.name}"
+
+
+class ShoppingList(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='user_shopping_list',
+                             verbose_name='Пользоавтель')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
+                               related_name='purchases',
+                               verbose_name='Покупка')
+    added = models.DateTimeField(
+        auto_now_add=True, verbose_name='Дата добавления в список покупок'
+    )
+
+    class Meta:
+        verbose_name = 'Покупки'
+
+    def __str__(self):
+        return f'In {self.user} список покупок: {self.recipe}'
+
+
+class IngredientAmount(models.Model):
+    ingredient = models.ForeignKey(
+        Ingredient, on_delete=models.CASCADE,
+        related_name='ingredients_in_recipe', verbose_name='Ингредиент'
+    )
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE,
+        related_name='recipes_ingredients_list', verbose_name='Рецепт'
+    )
+    amount = models.PositiveSmallIntegerField(
+        default=1, validators=[MinValueValidator(1)],
+        verbose_name='Количество ингредиентов'
+    )
+
+    class Meta:
+        verbose_name = 'Количество'
+
+    def __str__(self):
+        return f'{self.ingredient} in {self.recipe}'

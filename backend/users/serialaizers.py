@@ -7,7 +7,6 @@ from .models import User, Follow
 
 
 class ProfileCreateSerializer(UserCreateSerializer):
-
     class Meta:
         fields = (
             'email', 'password', 'username', 'first_name', 'last_name',
@@ -16,8 +15,13 @@ class ProfileCreateSerializer(UserCreateSerializer):
 
 
 class ProfileSerializer(UserSerializer):
-
     is_subscribed = serializers.SerializerMethodField(read_only=True)
+    
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=request.user, author=obj).exists()
 
     class Meta:
         fields = (
@@ -26,31 +30,18 @@ class ProfileSerializer(UserSerializer):
         )
         model = User
 
-    def get_is_subscribed(self, obj):
-        request = self.context.get('request')
-        if not request or request.user.is_anonymous:
-            return False
-        return Follow.objects.filter(user=request.user, author=obj).exists()
-
 
 class FollowRecipeSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
 
 
 class FollowListSerializer(serializers.ModelSerializer):
-
     is_subscribed = serializers.SerializerMethodField(read_only=True)
     recipes = serializers.SerializerMethodField(read_only=True)
     recipes_count = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'username', 'first_name',
-                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
-
+    
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
@@ -72,8 +63,18 @@ class FollowListSerializer(serializers.ModelSerializer):
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
+    class Meta:
+        model = User
+        fields = ('id', 'email', 'username', 'first_name',
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
+
 
 class FollowSerializer(serializers.ModelSerializer):
+    
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
+        return FollowListSerializer(instance.author, context=context).data
 
     class Meta:
         model = Follow
@@ -85,8 +86,3 @@ class FollowSerializer(serializers.ModelSerializer):
                 message='Вы уже подписаны на этого автора!'
             )
         ]
-
-    def to_representation(self, instance):
-        request = self.context.get('request')
-        context = {'request': request}
-        return FollowListSerializer(instance.author, context=context).data
