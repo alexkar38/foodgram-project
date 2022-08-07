@@ -15,12 +15,10 @@ router.register(
     ShoppingListViewSet,
     basename='user_shopping_list',
 )
-router.register('tags', TagViewSet, basename='tags')
+router.register('tags', TagViewSet)
 router.register('recipes', RecipeViewSet)
-router.register(r'ingredients', IngredientViewSet, basename='ingredients')
+router.register(r'ingredients', IngredientViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),       
-    #path('recipes/<int:favorite_id>/favorite/', FavoriteViewSet.as_view()),
-    #path('recipes/<int:recipe_id>/shopping_cart/', ShoppingListViewSet.as_view()),
-]
+    ]

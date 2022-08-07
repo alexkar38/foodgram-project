@@ -8,6 +8,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
+CSRF_TRUSTED_ORIGINS = ['lockalhost']
+
 
 INSTALLED_APPS = [
     "recipes",
@@ -104,7 +106,7 @@ REST_AUTH_SERIALIZERS = {
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": (        
-        "rest_framework.permissions.AllowAny",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
@@ -130,6 +132,8 @@ DJOSER = {
     },
     'HIDE_USERS': False,
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LANGUAGE_CODE = "en-us"
 

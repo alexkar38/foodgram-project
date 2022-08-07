@@ -8,7 +8,7 @@ from . import serializers
 from .filters import IngredientFilter, RecipeFilter
 from .mixins import RecipeCreateDestroyMixin
 from .models import Favorite, Ingredient, ShoppingList, IngredientAmount, Recipe, Tag
-from .permissions import IsAdminOrAuthorOrReadOnly
+from .permissions import IsOwnerOrReadOnly
 from .utils import get_pdf
 
 
@@ -30,10 +30,10 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 class RecipeViewSet(ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = serializers.RecipeWriteSerializer
-    permission_classes = [IsAdminOrAuthorOrReadOnly]
+    serializer_class = serializers.RecipeLiteSerializer
+    permission_classes = [IsOwnerOrReadOnly]    
     filter_class = RecipeFilter
-
+   
     def get_queryset(self):
         user = self.request.user
         if not user.is_authenticated:
@@ -43,7 +43,7 @@ class RecipeViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
             return serializers.RecipeSerializer
-        return serializers.RecipeWriteSerializer
+        return serializers.RecipeWriteSerializer 
 
     @action(
         methods=['get'],

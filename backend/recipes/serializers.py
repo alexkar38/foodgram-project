@@ -1,4 +1,4 @@
-#from django.conf.settings import AUTH_USER_MODEL
+from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.utils.translation import gettext_lazy as _
 from drf_extra_fields.fields import HybridImageField
@@ -63,24 +63,15 @@ class RecipeSerializer(RecipeLiteSerializer):
         model = Recipe
 
 
-class RecipeWriteSerializer(serializers.ModelSerializer):
-    #text = serializers.JSONField()
+class RecipeWriteSerializer(serializers.ModelSerializer):      
     author = ProfileSerializer(read_only=True)
     ingredients = IngredientAmountWriteSerializer(many=True)
     image = HybridImageField()
 
     class Meta:        
         model = Recipe
-        fields = (
-            'id',
-            'tags',
-            'author',
-            'ingredients',            
-            'name',
-            'image',
-            'text',
-            'cooking_time',
-        )
+        fields = '__all__'
+        
         
     def validate_ingredients(self, value):
         for ingredient in value:
@@ -90,29 +81,38 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
                 )
         return value
 
-    
+    @transaction.atomic
     def create(self, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
-        tags_data = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.add_ingredients(ingredients_data)
-        recipe.tags.set(tags_data)
+        image = validated_data.pop('image')
+        ingredients = validated_data.pop('ingredients')
+        recipe = Recipe.objects.create(image=image, **validated_data)
+        tags = self.initial_data.get('tags')
+
+        for tag_id in tags:
+            recipe.tags.add(get_object_or_404(Tag, pk=tag_id))
+
+        for ingredient in ingredients:
+            IngredientAmount.objects.create(
+                recipe=recipe,
+                ingredient_id=ingredient.get('id'),
+                amount=ingredient.get('amount')
+            )
+
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        ingredients_data = validated_data.pop('ingredients')
-        tags_data = validated_data.pop('tags')
+        instance.image = validated_data.get('image', instance.image)
         instance.name = validated_data.get('name', instance.name)
         instance.text = validated_data.get('text', instance.text)
-        instance.image = validated_data.get('image', instance.image)
         instance.cooking_time = validated_data.get(
-            'cooking_time',
-            instance.cooking_time,
+            'cooking_time', instance.cooking_time
         )
-        IngredientAmount.objects.filter(recipe=instance).delete()
-        instance.add_ingredients(ingredients_data)
+        instance.tags.clear()
+        tags_data = self.initial_data.get('tags')
         instance.tags.set(tags_data)
+        IngredientAmount.objects.filter(recipe=instance).all().delete()
+        self.create_ingredients(validated_data.get('ingredients'), instance)
         instance.save()
         return instance
 

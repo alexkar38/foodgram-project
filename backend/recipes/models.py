@@ -1,12 +1,10 @@
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.conf import settings
-from users.models import User
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=50, unique=True)
-    quantity = models.FloatField(max_length=40)
+    name = models.CharField(max_length=50, unique=True)    
     measurement_unit = models.CharField(max_length=50)
 
     class Meta:
@@ -116,7 +114,11 @@ class IngredientAmount(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Количество'
-
-    def __str__(self):
-        return f'{self.ingredient} in {self.recipe}'
+        verbose_name = 'Количество ингредиента'        
+        unique_together = ('ingredient', 'recipe')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ingredient', 'recipe'],
+                name='recipe_ingredient_unique',
+            )
+        ]
