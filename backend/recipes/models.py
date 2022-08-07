@@ -1,12 +1,13 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.conf import settings
 from users.models import User
 
 
 class Ingredient(models.Model):
     name = models.CharField(max_length=50, unique=True)
     quantity = models.FloatField(max_length=40)
-    unit_of_measurement = models.CharField(max_length=50)
+    measurement_unit = models.CharField(max_length=50)
 
     class Meta:
         verbose_name = "Ингридиент"
@@ -19,7 +20,7 @@ class Ingredient(models.Model):
 class Tag(models.Model):
     name = models.CharField(max_length=40, unique=True)
     slug = models.SlugField(unique=True)
-    hexcolor = models.CharField(max_length=7, unique=True, default="#ffffff")
+    color = models.CharField(max_length=7, unique=True, default="#ffffff")
 
     class Meta:
         verbose_name = "Тег"
@@ -31,7 +32,7 @@ class Tag(models.Model):
 
 class Recipe(models.Model):
     author = models.ForeignKey(
-        User,
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         verbose_name='автор рецепта',
     )
@@ -45,12 +46,10 @@ class Recipe(models.Model):
         upload_to='recipe_images',
         verbose_name='фото блюда',
     )
-
-    description = models.CharField(
-        max_length=200,
-        verbose_name='описание рецепта',
+    text = models.TextField(        
+        verbose_name='Рецепт',
     )
-
+    
     tags = models.ManyToManyField(
         Tag,
         related_name='tags',
@@ -68,7 +67,7 @@ class Recipe(models.Model):
 
 
 class Favorite(models.Model):
-    user = models.ForeignKey(User, related_name='favorites',
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='favorites',
                              on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, related_name='favorites',
                                on_delete=models.CASCADE)
@@ -85,7 +84,7 @@ class Favorite(models.Model):
 
 
 class ShoppingList(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE,
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
                              related_name='user_shopping_list',
                              verbose_name='Пользоавтель')
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,

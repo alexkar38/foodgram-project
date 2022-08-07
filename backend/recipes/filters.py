@@ -1,41 +1,27 @@
-import django_filters as filters
+from django_filters import BooleanFilter, CharFilter, FilterSet, NumberFilter
 
-from .models import Recipe, Ingredient, Tag
-
-
-class RecipeFilter(filters.FilterSet):
-    tags = filters.ModelMultipleChoiceFilter(
-        field_name='tags__slug',
-        queryset=Tag.objects.all(),
-        to_field_name='slug',
-    )
-    is_favorited = filters.BooleanFilter(
-        method='get_is_favorited'
-    )
-    is_in_shopping_cart = filters.BooleanFilter(
-        method='get_is_in_shopping_cart'
-    )
-
-    class Meta:
-        model = Recipe
-        fields = ('tags', 'author', 'is_favorited', 'is_in_shopping_cart')
-
-    def get_is_favorited(self, queryset, name, value):
-        user = self.request.user
-        if value:
-            return queryset.filter(favorites__user=user)
-        return Recipe.objects.all()
-
-    def get_is_in_shopping_cart(self, queryset, name, value):
-        user = self.request.user
-        if value:
-            return queryset.filter(purchases__user=user)
-        return Recipe.objects.all()
+from .models import Ingredient, Recipe
 
 
-class IngredientFilter(filters.FilterSet):
-    name = filters.CharFilter(field_name="name", lookup_expr='icontains')
+class IngredientFilter(FilterSet):
+    name = CharFilter(field_name='name', lookup_expr='istartswith')
 
     class Meta:
         model = Ingredient
-        fields = ('name', )
+        fields = ['name']
+
+
+class RecipeFilter(FilterSet):
+    tags = CharFilter(field_name='tags__slug', method='filter_tags')
+    author = NumberFilter(field_name='author__id')
+    is_favorited = BooleanFilter(field_name='is_favorited')
+    is_in_shopping_cart = BooleanFilter(field_name='is_in_shopping_cart')
+
+    class Meta:
+        model = Recipe
+        fields = ['author', 'is_favorited', 'is_in_shopping_cart', 'tags']
+
+    def filter_tags(self, queryset, name, value):
+        values = self.data.getlist('tags')
+        lookup = f'{name}__in'
+        return queryset.filter(**{lookup: values}).distinct()
