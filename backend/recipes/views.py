@@ -1,20 +1,21 @@
 from http import HTTPStatus
+
 from django.http import FileResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.pagination import PageNumberPagination
-from rest_framework.response import Response
-from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from . import serializers
 from .filters import IngredientFilter, RecipeFilter
 from .mixins import RecipeCreateMixin
-from .models import Favorite, Ingredient, ShoppingList, IngredientAmount, Recipe, Tag
+from .models import (Favorite, Ingredient, IngredientAmount, Recipe,
+                     ShoppingList, Tag)
 from .permissions import IsOwnerOrReadOnly
 from .utils import get_pdf
-
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
@@ -33,25 +34,28 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
-    permission_classes = [IsOwnerOrReadOnly, ]
+    permission_classes = [
+        IsOwnerOrReadOnly,
+    ]
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
-    pagination_class.page_size = 6
-    filter_backends = [DjangoFilterBackend, ]
+    filter_backends = [
+        DjangoFilterBackend,
+    ]
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PUT', 'PATCH'):
+        if self.request.method in ("POST", "PUT", "PATCH"):
             return serializers.RecipeFullSerializer
         return serializers.RecipeSerializer
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context.update({'request': self.request})
+        context.update({"request": self.request})
         return context
 
     @action(
-        methods=['get'],
+        methods=["get"],
         detail=False,
         permission_classes=[IsAuthenticated],
     )
@@ -59,7 +63,7 @@ class RecipeViewSet(ModelViewSet):
         user = self.request.user
         purchases = IngredientAmount.objects.purchases(user)
         file = get_pdf(purchases)
-        return FileResponse(file, as_attachment=True, filename='purchases.pdf')
+        return FileResponse(file, as_attachment=True, filename="purchases.pdf")
 
 
 class ShoppingListViewSet(RecipeCreateMixin):
