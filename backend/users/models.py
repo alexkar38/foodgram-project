@@ -13,7 +13,13 @@ class User(AbstractUser):
         max_length=150, verbose_name='Имя'
     )
     last_name = models.CharField(
-        max_length=150, verbose_name='Фамилия')
+        max_length=150, verbose_name='Фамилия'
+    )
+    is_subscribed = models.BooleanField(
+        default=False,
+        verbose_name='Подписка на данного пользователя'
+    )
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
@@ -42,7 +48,7 @@ class Follow(models.Model):
         verbose_name_plural = 'Подписки'
 
     def __str__(self) -> str:
-        return str(self.author)
+        return f'{self.user} {self.author}'
 
 
     

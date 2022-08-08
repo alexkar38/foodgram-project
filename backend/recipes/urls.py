@@ -1,24 +1,28 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import ( FavoriteViewSet, RecipeViewSet,
-                    ShoppingListViewSet, IngredientViewSet, TagViewSet)
+from . import views
+
 
 router = DefaultRouter()
 router.register(
     r'recipes/(?P<recipe_id>\d+)/favorite',
-    FavoriteViewSet,
+    views.FavoriteViewSet,
     basename='favorites',
 )
 router.register(
     r'recipes/(?P<recipe_id>\d+)/shopping_cart',
-    ShoppingListViewSet,
-    basename='user_shopping_list',
+    views.ShoppingListViewSet,
+    basename='shopping_cart',)
+router.register(r'tags', views.TagViewSet, basename='tags')
+router.register(r'recipes', views.RecipeViewSet, basename='recipes')
+router.register(
+    r'ingredients',
+    views.IngredientViewSet,
+    basename='ingredients',
 )
-router.register('tags', TagViewSet)
-router.register('recipes', RecipeViewSet)
-router.register(r'ingredients', IngredientViewSet)
 
-urlpatterns = [
-    path('', include(router.urls)),       
-    ]
+
+urlpatterns = [    
+    path('', include(router.urls)),
+]

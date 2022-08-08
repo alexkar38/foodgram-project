@@ -2,17 +2,22 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.conf import settings
 
+from .manager import IngridientAmountQuerySet
+
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=50, unique=True)    
-    measurement_unit = models.CharField(max_length=50)
+    name = models.CharField(max_length=200,
+                            verbose_name='Название ингредиента', null=False)
+    measurement_unit = models.CharField(max_length=20,
+                                        verbose_name='Единица измерения',
+                                        null=False)
 
     class Meta:
-        verbose_name = "Ингридиент"
-        verbose_name_plural = "Ингридиенты"
+        verbose_name = 'Ингредиент'
+        ordering = ['name']
 
     def __str__(self):
-        return self.name 
+        return f'{self.name}, {self.measurement_unit}' 
 
 
 class Tag(models.Model):
@@ -40,6 +45,13 @@ class Recipe(models.Model):
         verbose_name='название рецепта',
     )
 
+    ingredients = models.ManyToManyField(
+        Ingredient,
+        related_name='ingredients',
+        through='IngredientAmount',
+        verbose_name='Ингредиенты'
+    )
+
     image = models.ImageField(
         upload_to='recipe_images',
         verbose_name='фото блюда',
@@ -61,7 +73,7 @@ class Recipe(models.Model):
 
     class Meta:
         verbose_name = 'Рецепт'
-        verbose_name_plural = 'Рецепты'       
+        verbose_name_plural = 'Рецепты'   
 
 
 class Favorite(models.Model):
@@ -69,10 +81,7 @@ class Favorite(models.Model):
                              on_delete=models.CASCADE)
     recipe = models.ForeignKey(Recipe, related_name='favorites',
                                on_delete=models.CASCADE)
-    added = models.DateTimeField(
-        auto_now_add=True, verbose_name='Дата добавления в избранное'
-    )
-
+    
     class Meta:
         verbose_name = 'Избранное'
         models.UniqueConstraint(fields=['recipe', 'user'], name='favorite_unique')
@@ -88,12 +97,15 @@ class ShoppingList(models.Model):
     recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE,
                                related_name='purchases',
                                verbose_name='Покупка')
-    added = models.DateTimeField(
-        auto_now_add=True, verbose_name='Дата добавления в список покупок'
-    )
-
+    
     class Meta:
         verbose_name = 'Покупки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='user_and_purchase_uniq_together',
+            ),
+        ]
 
     def __str__(self):
         return f'In {self.user} список покупок: {self.recipe}'
@@ -122,3 +134,5 @@ class IngredientAmount(models.Model):
                 name='recipe_ingredient_unique',
             )
         ]
+
+    objects = IngridientAmountQuerySet.as_manager()

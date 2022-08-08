@@ -1,12 +1,16 @@
-#from django.conf.settings import AUTH_USER_MODEL as User
+from http import HTTPStatus
 from django.http import FileResponse
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from . import serializers
 from .filters import IngredientFilter, RecipeFilter
-from .mixins import RecipeCreateDestroyMixin
+from .mixins import RecipeCreateMixin
 from .models import Favorite, Ingredient, ShoppingList, IngredientAmount, Recipe, Tag
 from .permissions import IsOwnerOrReadOnly
 from .utils import get_pdf
@@ -29,21 +33,22 @@ class TagViewSet(ReadOnlyModelViewSet):
 
 
 class RecipeViewSet(ModelViewSet):
+    permission_classes = [IsOwnerOrReadOnly, ]
     queryset = Recipe.objects.all()
-    serializer_class = serializers.RecipeLiteSerializer
-    permission_classes = [IsOwnerOrReadOnly]    
-    filter_class = RecipeFilter
-   
-    def get_queryset(self):
-        user = self.request.user
-        if not user.is_authenticated:
-            return self.queryset
-        return self.queryset.with_user(user)
+    pagination_class = PageNumberPagination
+    pagination_class.page_size = 6
+    filter_backends = [DjangoFilterBackend, ]
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
-        if self.action in ('list', 'retrieve'):
-            return serializers.RecipeSerializer
-        return serializers.RecipeWriteSerializer 
+        if self.request.method in ('POST', 'PUT', 'PATCH'):
+            return serializers.RecipeFullSerializer
+        return serializers.RecipeSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context
 
     @action(
         methods=['get'],
@@ -57,11 +62,23 @@ class RecipeViewSet(ModelViewSet):
         return FileResponse(file, as_attachment=True, filename='purchases.pdf')
 
 
-class FavoriteViewSet(RecipeCreateDestroyMixin):
+class ShoppingListViewSet(RecipeCreateMixin):
+    queryset = ShoppingList.objects.all()
+    serializer_class = serializers.ShoppingListSerializer
+
+    def delete(self, request, recipe_id):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        ShoppingList.objects.filter(user=user, recipe=recipe).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
+
+
+class FavoriteViewSet(RecipeCreateMixin):
     queryset = Favorite.objects.all()
     serializer_class = serializers.FavoriteSerializer
 
-
-class ShoppingListViewSet(RecipeCreateDestroyMixin):
-    queryset = ShoppingList.objects.all()
-    serializer_class = serializers.ShoppingListSerializer
+    def delete(self, request, recipe_id):
+        user = request.user
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        Favorite.objects.filter(user=user, recipe=recipe).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
