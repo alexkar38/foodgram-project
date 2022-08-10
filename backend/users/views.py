@@ -11,8 +11,7 @@ from users.serialaizers import FollowListSerializer, FollowSerializer
 
 
 class FollowView(APIView):
-
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def post(self, request, id):
         data = {"author": id, "user": request.user.id}
@@ -30,9 +29,8 @@ class FollowView(APIView):
 
 
 class FollowListView(ListAPIView):
-
     pagination_class = PageNumberPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         user = request.user

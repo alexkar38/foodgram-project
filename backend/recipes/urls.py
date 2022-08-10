@@ -14,8 +14,8 @@ router.register(
     views.ShoppingListViewSet,
     basename="shopping_cart",
 )
-router.register(r"tags", views.TagViewSet, basename="tags")
-router.register(r"recipes", views.RecipeViewSet, basename="recipes")
+router.register("tags", views.TagViewSet, basename="tags")
+router.register("recipes", views.RecipeViewSet, basename="recipes")
 router.register(
     r"ingredients",
     views.IngredientViewSet,

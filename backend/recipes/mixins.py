@@ -12,7 +12,7 @@ from .serializers import RecipeLiteSerializer
 class RecipeCreateMixin(
     mixins.ListModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet
 ):
-    permission_classes = [IsAuthenticated]
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self):
         recipe = get_object_or_404(Recipe, id=self.kwargs["recipe_id"])

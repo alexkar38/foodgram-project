@@ -23,7 +23,7 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ["id", "name", "measurement_unit", "amount"]
+        fields = ("id", "name", "measurement_unit", "amount",)
         model = IngredientAmount
 
 
@@ -32,7 +32,7 @@ class IngredientAmountWriteSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField()
 
     class Meta:
-        fields = ["id", "amount"]
+        fields = ("id", "amount",)
         model = IngredientAmount
 
 
@@ -134,6 +134,7 @@ class RecipeFullSerializer(serializers.ModelSerializer):
                 for ingredient in ingredients_data
             ]
         )
+        
 
     @transaction.atomic
     def create(self, validated_data):
@@ -159,16 +160,18 @@ class RecipeFullSerializer(serializers.ModelSerializer):
             instance.image = validated_data.pop("image")
         instance.save()
         instance.tags.set(tags_data)
-        return instance
-
-    def validate(self, data):
-        ingredients = self.initial_data.get("ingredients")
-        for ingredient in ingredients:
-            if int(ingredient["amount"]) <= 0:
+        return instance     
+    
+    def validate_name(self, name):
+        if not name:
+            raise serializers.ValidationError('Не заполнено название рецепта!')
+        if self.context.get('request').method == 'POST':
+            current_user = self.context.get('request').user
+            if Recipe.objects.filter(author=current_user, name=name).exists():
                 raise serializers.ValidationError(
-                    {"ingredients": ("Число игредиентов должно быть больше 0")}
+                    'Рецепт с таким названием у вас уже есть!'
                 )
-        return data
+        return name
 
     def validate_cooking_time(self, data):
         cooking_time = self.initial_data.get("cooking_time")

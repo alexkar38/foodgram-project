@@ -21,7 +21,7 @@ from .utils import get_pdf
 class IngredientViewSet(ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = serializers.IngredientSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
     filter_class = IngredientFilter
     pagination_class = None
 
@@ -29,7 +29,7 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 class TagViewSet(ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
     pagination_class = None
 
 
@@ -39,9 +39,9 @@ class RecipeViewSet(ModelViewSet):
     ]
     queryset = Recipe.objects.all()
     pagination_class = PageNumberPagination
-    filter_backends = [
+    filter_backends = (
         DjangoFilterBackend,
-    ]
+    )
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
@@ -57,7 +57,7 @@ class RecipeViewSet(ModelViewSet):
     @action(
         methods=["get"],
         detail=False,
-        permission_classes=[IsAuthenticated],
+        permission_classes=(IsAuthenticated,),
     )
     def download_shopping_cart(self, request):
         user = self.request.user
