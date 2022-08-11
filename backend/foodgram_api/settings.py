@@ -8,7 +8,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = ["lockalhost"]
+CSRF_TRUSTED_ORIGINS = ["lockalhost", "178.154.198.202", "testyatube.zapto.org"]
 
 
 INSTALLED_APPS = [

@@ -1,10 +1,10 @@
 # foodgram-project
 
-[Ссылка на проект]()
+[Ссылка на проект](testyatube.zapto.org)
 
-Админ: 
+Админ: admin@admin.ru
 
-Пароль: 
+Пароль: admin
 
 
 [![Python](https://img.shields.io/badge/-Python-blue)](https://www.python.org/)
