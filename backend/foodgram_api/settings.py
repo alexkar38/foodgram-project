@@ -78,16 +78,16 @@ DATABASES = {
 
 AUTH_PASSWORD_VALIDATORS = [
     {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator", # noqa: E501
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",#noqa:E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", # noqa: E501
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",#noqa:E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator", # noqa: E501
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",#noqa:E501
     },
     {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator", # noqa: E501
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",#noqa:E501
     },
 ]
 
@@ -98,7 +98,7 @@ ADMIN_EMAIL = "a01alex@yandex.ru"
 
 
 REST_AUTH_SERIALIZERS = {
-    "USER_DETAILS_SERIALIZER": "api_users_auth.serializers.CustomUserSerializer", # noqa: E501
+    "USER_DETAILS_SERIALIZER": "api_users_auth.serializers.CustomUserSerializer",#noqa:E501
 }
 
 REST_FRAMEWORK = {
