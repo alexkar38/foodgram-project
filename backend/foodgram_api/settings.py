@@ -8,10 +8,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = [    
-    "testyatube.zapto.org",
-]
-
+CSRF_TRUSTED_ORIGINS = ["testyatube.zapto.org",]
 
 INSTALLED_APPS = [
     "recipes",
