@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, validators
 
@@ -23,7 +24,12 @@ class IngredientAmountSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ("id", "name", "measurement_unit", "amount",)
+        fields = (
+            "id",
+            "name",
+            "measurement_unit",
+            "amount",
+        )
         model = IngredientAmount
 
 
@@ -32,7 +38,10 @@ class IngredientAmountWriteSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField()
 
     class Meta:
-        fields = ("id", "amount",)
+        fields = (
+            "id",
+            "amount",
+        )
         model = IngredientAmount
 
 
@@ -104,7 +113,9 @@ class RecipeSerializer(serializers.ModelSerializer):
 class RecipeFullSerializer(serializers.ModelSerializer):
     image = Base64ImageField(use_url=True, max_length=None)
     author = ProfileSerializer(read_only=True)
-    ingredients = AddToIngredientAmountSerializer(many=True)
+    ingredients = AddToIngredientAmountSerializer(
+        many=True,
+    )
     tags = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(), many=True
     )
@@ -134,7 +145,6 @@ class RecipeFullSerializer(serializers.ModelSerializer):
                 for ingredient in ingredients_data
             ]
         )
-        
 
     @transaction.atomic
     def create(self, validated_data):
@@ -160,16 +170,30 @@ class RecipeFullSerializer(serializers.ModelSerializer):
             instance.image = validated_data.pop("image")
         instance.save()
         instance.tags.set(tags_data)
-        return instance     
-    
+        return instance
+
+    def validate(self, data):
+        ingredients = self.initial_data.get("ingredients")
+        ingredient_list = []
+        for ingredient_item in ingredients:
+            ingredient = get_object_or_404(
+                Ingredient, id=ingredient_item["id"]
+            )
+            if ingredient in ingredient_list:
+                raise serializers.ValidationError(
+                    "Ингридиенты должны быть уникальными"
+                )
+            ingredient_list.append(ingredient)
+        return data
+
     def validate_name(self, name):
         if not name:
-            raise serializers.ValidationError('Не заполнено название рецепта!')
-        if self.context.get('request').method == 'POST':
-            current_user = self.context.get('request').user
+            raise serializers.ValidationError("Не заполнено название рецепта!")
+        if self.context.get("request").method == "POST":
+            current_user = self.context.get("request").user
             if Recipe.objects.filter(author=current_user, name=name).exists():
                 raise serializers.ValidationError(
-                    'Рецепт с таким названием у вас уже есть!'
+                    "Рецепт с таким названием у вас уже есть!"
                 )
         return name
 

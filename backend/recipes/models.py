@@ -1,4 +1,3 @@
-from email import message
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -16,7 +15,7 @@ class Ingredient(models.Model):
 
     class Meta:
         verbose_name = "Ингредиент"
-        ordering = ("name",)    
+        ordering = ("name",)
 
     def __str__(self):
         return f"{self.name}, {self.measurement_unit}"
@@ -78,7 +77,7 @@ class Recipe(models.Model):
 
     class Meta:
         verbose_name = "Рецепт"
-        verbose_name_plural = "Рецепты"    
+        verbose_name_plural = "Рецепты"
 
 
 class Favorite(models.Model):
@@ -149,12 +148,5 @@ class IngredientAmount(models.Model):
 
     class Meta:
         verbose_name = "Количество ингредиента"
-        unique_together = ("ingredient", "recipe")
-        constraints = [
-            models.UniqueConstraint(
-                fields=["ingredient", "recipe"],
-                name="recipe_ingredient_unique",                
-            )
-        ]
 
     objects = IngridientAmountQuerySet.as_manager()

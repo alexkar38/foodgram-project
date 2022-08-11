@@ -4,14 +4,18 @@ from django.db import models
 
 class User(AbstractUser):
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ("username", "first_name", "last_name",)
+    REQUIRED_FIELDS = (
+        "username",
+        "first_name",
+        "last_name",
+    )
 
     email = models.EmailField(
         max_length=254, unique=True, verbose_name="Адрес электорной почты"
-    )    
+    )
     is_subscribed = models.BooleanField(
         default=False, verbose_name="Подписка на данного пользователя"
-    )    
+    )
 
     class Meta:
         ordering = ("-id",)
