@@ -1,6 +1,6 @@
 # foodgram-project
 
-[Ссылка на проект](testyatube.zapto.org)
+[Ссылка на проект](http://foodgram-progect.ddns.net)
 
 Админ: admin@admin.ru
 
