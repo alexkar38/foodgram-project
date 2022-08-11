@@ -8,7 +8,11 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = ["lockalhost", "178.154.198.202", "testyatube.zapto.org"]
+CSRF_TRUSTED_ORIGINS = [
+    "lockalhost",
+    "178.154.198.202",
+    "testyatube.zapto.org",
+]
 
 
 INSTALLED_APPS = [
@@ -60,9 +64,7 @@ WSGI_APPLICATION = "foodgram_api.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": os.getenv(
-            "DB_ENGINE", default="django.db.backends.postgresql"
-        ),
+        "ENGINE": os.getenv("DB_ENGINE", default="django.db.backends.postgresql"),
         "NAME": os.getenv("DB_NAME", default="postgres"),
         "USER": os.getenv("POSTGRES_USER", default="postgres"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
