@@ -19,8 +19,7 @@ services:
       - ./.env
 
   frontend:
-    image: a01alex/foodgram_project_frontend:latest
-          
+    image: a01alex/foodgram_project_frontend:latest          
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
