@@ -6,9 +6,9 @@ SECRET_KEY = "p&l%385148kslhtyn^##a1)ilz@4zqj=rq&agdol^##zgl9(vs"
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["lockalhost", "158.160.1.60", "*testyatube.zapto.org"]
 
-CSRF_TRUSTED_ORIGINS = ["testyatube.zapto.org"]
+CSRF_TRUSTED_ORIGINS = ["158.160.1.60"]
 
 INSTALLED_APPS = [
     "recipes",
