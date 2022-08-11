@@ -29,7 +29,7 @@ services:
     volumes:
       - static_value:/var/html/backend_static/
       - media_value:/var/html/backend_media/
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/nginx.conf:/etc/nginx/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs:/usr/share/nginx/html/api/docs
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
