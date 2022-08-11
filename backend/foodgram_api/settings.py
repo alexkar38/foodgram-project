@@ -10,7 +10,7 @@ ALLOWED_HOSTS = ["*"]
 
 CSRF_TRUSTED_ORIGINS = [
     "lockalhost",
-    "178.154.198.202",
+    "158.160.1.60",
     "testyatube.zapto.org",
 ]
 
