@@ -5,6 +5,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
 from users.models import Follow, User
 from users.serialaizers import FollowListSerializer, FollowSerializer
 
@@ -35,5 +36,7 @@ class FollowListView(ListAPIView):
         user = request.user
         queryset = User.objects.filter(following__user=user)
         page = self.paginate_queryset(queryset)
-        serializer = FollowListSerializer(page, many=True, context={"request": request})
+        serializer = FollowListSerializer(
+            page, many=True, context={"request": request}
+        )
         return self.get_paginated_response(serializer.data)

@@ -2,6 +2,7 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, validators
+
 from users.serialaizers import ProfileSerializer
 
 from .models import (Favorite, Ingredient, IngredientAmount, Recipe,
@@ -115,7 +116,9 @@ class RecipeFullSerializer(serializers.ModelSerializer):
     ingredients = AddToIngredientAmountSerializer(
         many=True,
     )
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=Tag.objects.all(), many=True
+    )
     cooking_time = serializers.IntegerField()
 
     class Meta:
@@ -173,9 +176,13 @@ class RecipeFullSerializer(serializers.ModelSerializer):
         ingredients = self.initial_data.get("ingredients")
         ingredient_list = []
         for ingredient_item in ingredients:
-            ingredient = get_object_or_404(Ingredient, id=ingredient_item["id"])
+            ingredient = get_object_or_404(
+                Ingredient, id=ingredient_item["id"]
+            )
             if ingredient in ingredient_list:
-                raise serializers.ValidationError("Ингридиенты должны быть уникальными")
+                raise serializers.ValidationError(
+                    "Ингридиенты должны быть уникальными"
+                )
             ingredient_list.append(ingredient)
         return data
 
