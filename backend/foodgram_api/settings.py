@@ -8,9 +8,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
-CSRF_TRUSTED_ORIGINS = [
-    "lockalhost",
-    "158.160.1.60",
+CSRF_TRUSTED_ORIGINS = [    
     "testyatube.zapto.org",
 ]
 
