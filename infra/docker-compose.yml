@@ -19,7 +19,8 @@ services:
       - ./.env
 
   frontend:
-    image: a01alex/foodgram_project_frontend:latest          
+    image: a01alex/foodgram_project_frontend:latest
+          
     volumes:
       - ../frontend/:/app/result_build/
   nginx:
@@ -29,7 +30,7 @@ services:
     volumes:
       - static_value:/var/html/backend_static/
       - media_value:/var/html/backend_media/
-      - ./nginx/nginx.conf:/etc/nginx/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs:/usr/share/nginx/html/api/docs
       - ../docs/redoc.html:/usr/share/nginx/html/api/docs/redoc.html
