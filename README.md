@@ -1,11 +1,5 @@
 # foodgram-project
 
-[Ссылка на проект](http://foodgram-progect.ddns.net)
-
-Админ: admin@admin.ru
-
-Пароль: admin
-
 
 [![Python](https://img.shields.io/badge/-Python-blue)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/-Django-darkgreen)](https://www.djangoproject.com/)
